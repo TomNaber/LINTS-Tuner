@@ -11,22 +11,54 @@ function app(saved={},blocked=false){
  const old={pitch:6500,width:.75,weight:32,texture:42,volume:9,randomnessVersion:1};
  const a=app({'tinnitus-matcher-standalone-v1':JSON.stringify(old)});
  assert.equal(a.elements.get('pitch-number').value,6500);
- assert.equal(JSON.parse(a.storage['lints-tuner-v1']).texture,42);
+ assert.equal(JSON.parse(a.storage['lints-tuner-v1']).tones[0].texture,42);
  a.elements.get('volume').oninput({target:{value:'7'}});
- assert.equal(JSON.parse(a.storage['lints-tuner-v1']).volume,7);
+ assert.equal(JSON.parse(a.storage['lints-tuner-v1']).tones[0].volume,7);
  const restored=app(a.storage);assert.equal(restored.elements.get('volume-number').value,7);assert.equal(restored.run('playing'),false);
  const config=a.run('JSON.stringify(configuration())');
- assert.equal(a.run(`parseConfiguration(${JSON.stringify(config)}).pitch`),6500);
- for(const bad of ['null','{}','{','{"app":"Other","version":1,"settings":{}}',config.replace('6500','99999'),config.replace('6500','"6500"'),config.replace('"version":1','"version":2')])assert.throws(()=>a.run(`parseConfiguration(${JSON.stringify(bad)})`));
- const imported=JSON.parse(config);imported.settings.pitch=8100;
+ assert.equal(a.run(`parseConfiguration(${JSON.stringify(config)}).tones[0].pitch`),6500);
+ for(const bad of ['null','{}','{','{"app":"Other","version":1,"settings":{}}',config.replace('6500','99999'),config.replace('6500','"6500"'),config.replace('"version":2','"version":3')])assert.throws(()=>a.run(`parseConfiguration(${JSON.stringify(bad)})`));
+ const imported=JSON.parse(config);imported.tones[0].pitch=8100;
  const event={target:{files:[{size:100,text:async()=>JSON.stringify(imported)}],value:'config.txt'}};
  await a.elements.get('config-file').onchange(event);
  assert.equal(a.run('state.pitch'),8100);assert.equal(event.target.value,'');
+ // Each tone keeps its own controls and enabled state through save/import.
+ a.elements.get('add-tone').onclick();
+ assert.equal(a.run('tones.length'),2);
+ a.elements.get('pitch-number').oninput({target:{value:'2300',validity:{valid:true}}});
+ a.elements.get('volume').oninput({target:{value:'11'}});
+ a.elements.get('enable-tone-0').onchange({target:{checked:false}});
+ a.elements.get('select-tone-0').onclick();
+ assert.equal(a.run('state.pitch'),8100);
+ a.elements.get('select-tone-1').onclick();assert.equal(a.run('state.pitch'),2300);
+ const multi=app(a.storage);assert.equal(multi.run('tones.length'),2);assert.equal(multi.run('state.volume'),11);assert.equal(multi.run('tones[0].enabled'),false);
+ const roundTrip=a.run('JSON.stringify(parseConfiguration(JSON.stringify(configuration())))');
+ assert.equal(JSON.parse(roundTrip).tones[1].pitch,2300);
+ const legacy={app:'LINTS Tuner',version:1,settings:old};
+ assert.equal(a.run(`parseConfiguration(${JSON.stringify(JSON.stringify(legacy))}).tones[0].pitch`),6500);
+ for(const patch of [{tones:[]},{selected:5},{tones:[{...old,enabled:'yes'}]}]){
+ const invalid={...JSON.parse(a.run('JSON.stringify(configuration())')),...patch};
+ assert.throws(()=>a.run(`parseConfiguration(${JSON.stringify(JSON.stringify(invalid))})`));
+ }
+ a.elements.get('remove-tone-0').onclick();assert.equal(a.run('tones.length'),1);assert.equal(a.run('state.pitch'),2300);
+ a.elements.get('remove-tone-0').onclick();assert.equal(a.run('tones.length'),1);
  const before=a.run('JSON.stringify(state)');event.target.files=[{size:100,text:async()=>'invalid'}];
  await a.elements.get('config-file').onchange(event);assert.equal(a.run('JSON.stringify(state)'),before);
  assert.match(a.elements.get('config-status').textContent,/Import failed/);
  assert.match(app({},true).elements.get('config-status').textContent,/storage is unavailable/);
  a.run("playing=true;ctx={state:'running'}");a.box.document.hidden=true;a.events.visibilitychange();assert.equal(a.run('playing'),true);
  a.actions.pause();assert.equal(a.run('playing'),false);assert.equal(a.box.navigator.mediaSession.playbackState,'paused');
- console.log('Settings migration, persistence, configuration round-trip, invalid import, storage failure, hidden-tab state and media pause checks passed.');
+ // Simultaneous voices, independent tuning, mute and cleanup use production audio wiring.
+ a.run(`
+ let sources=[];
+ ctx={currentTime:0,sampleRate:48000,state:'running',createOscillator(){const node={frequency:{},connect(){return this;},start(){},stop(){this.stopped=true;},disconnect(){}};sources.push(node);return node;},createGain(){return {gain:{value:0,linearRampToValueAtTime(){},cancelAndHoldAtTime(){}},connect(){return this;},disconnect(){}};}};
+ master={gain:{setTargetAtTime(value){this.value=value;}}};
+ tones=[{...defaults,pitch:2000,width:0,enabled:true},{...defaults,pitch:6000,width:0,enabled:true}];state=tones[0];selected=0;playing=true;refreshVoices();
+ `);
+ assert.equal(a.run('voices.size'),2);assert.equal(a.run('master.gain.value'),.5);
+ assert.equal(a.run('sources[0].frequency.value'),2000);assert.equal(a.run('sources[1].frequency.value'),6000);
+ a.run('tones[0].pitch=2500;refreshVoices()');assert.equal(a.run('sources.length'),3);assert.equal(a.run('sources[0].stopped'),true);assert.equal(a.run('sources[1].stopped'),undefined);
+ a.run('tones[1].enabled=false;refreshVoices()');assert.equal(a.run('voices.size'),1);assert.equal(a.run('master.gain.value'),1);
+ a.run('stop()');assert.equal(a.run('voices.size'),0);assert.equal(a.run('sources[2].stopped'),true);
+ console.log('Multiple tones, independent voices, Settings migration, persistence, configuration round-trip, invalid import, storage failure, hidden-tab state and media pause checks passed.');
 })().catch(e=>{console.error(e);process.exitCode=1;});
