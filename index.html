@@ -5,24 +5,24 @@
 <meta name="theme-color" content="#f7f8f6"><title>LINTS Tuner</title>
 <style>
 :root{color-scheme:light;font:16px system-ui,sans-serif;color:#202723;background:#f7f8f6;accent-color:#32634e}*{box-sizing:border-box}body{margin:0}main{max-width:660px;margin:60px auto;padding:0 24px 40px}h1{font-size:24px;letter-spacing:-.7px;font-weight:600;margin:0 0 28px}button{font:inherit;cursor:pointer}label,.label{display:block;font-size:14px;font-weight:500}.row{margin:26px 0}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.value{display:flex;align-items:center;gap:8px;font-size:13px;color:#69736c}input[type=number]{font:inherit;font-size:15px;width:90px;padding:7px 8px;border:1px solid #d8ded9;border-radius:5px;background:#fff;color:#202723;text-align:right}input[type=range]{width:100%;margin:6px 0;cursor:pointer;min-height:24px}.choices{display:flex;gap:8px;flex-wrap:wrap}.choices button{border:1px solid #d8ded9;border-radius:5px;padding:8px 16px;background:transparent;font-size:14px}.choices button[aria-pressed=true]{background:#e4ede6;border-color:#557b64;color:#244f3c}figure{margin:30px 0 24px}canvas{display:block;width:100%;height:200px}figcaption{font-size:12px;color:#69736c;margin-bottom:8px}.axis{text-align:center;font-size:12px;color:#69736c}.transport{display:flex;gap:12px;margin-top:26px}.play{background:#2d5743;color:white;border:0;border-radius:6px;padding:13px 24px;width:100%;font-weight:500}.play[aria-pressed=true]{background:#424c46}button:focus-visible,input:focus-visible{outline:2px solid #32634e;outline-offset:4px}[hidden]{display:none!important}#error{color:#a33629;font-size:14px}@media(max-width:500px){main{margin-top:30px;padding:0 20px 28px}}
-.tone-item{display:flex;align-items:center;gap:10px;margin:8px 0}.tone-item .select-tone{flex:1;text-align:left}.tone-item button{border:1px solid #d8ded9;border-radius:5px;padding:9px 12px;background:white}.tone-item button[aria-pressed=true]{background:#e4ede6;border-color:#557b64}.tone-item label{display:flex;align-items:center;gap:5px}.hint{font-size:13px;color:#69736c}details{border-top:1px solid #d8ded9;padding-top:18px}summary{cursor:pointer;font-weight:500}#export-parameters{font-size:14px;line-height:1.8;padding-left:22px}</style>
+.tone-item{display:flex;align-items:center;gap:10px;margin:8px 0}.tone-item .select-tone{flex:1;text-align:left}.tone-item button{border:1px solid #d8ded9;border-radius:5px;padding:9px 12px;background:white}.tone-item button[aria-pressed=true]{background:#e4ede6;border-color:#557b64}.tone-item label{display:flex;align-items:center;gap:5px}details{border-top:1px solid #d8ded9;padding-top:18px}summary{cursor:pointer;font-weight:500}#export-parameters{font-size:14px;line-height:1.8;padding-left:22px}</style>
 </head>
 <body><main>
 <h1>LINTS Tuner</h1>
-<section aria-label="Tones"><div class="heading"><span class="label">Tones</span><div class="choices"><button id="add-tone">Add tone</button></div></div><div id="tones"></div><p class="hint">Enable tones to hear them together. Select a tone to tune it below.</p></section>
+<section aria-label="Tones"><div class="heading"><span class="label">Tones</span><div class="choices"><button id="add-tone">Add tone</button></div></div><div id="tones"></div></section>
 <section aria-label="Selected tone controls"><h2 id="selected-tone" style="font-size:16px;margin-top:28px">Tone 1</h2>
 <div class="row"><div class="heading"><label for="pitch">Pitch</label><div class="value"><input id="pitch-number" aria-label="Pitch in Hz" type="number" min="100" max="16000" step="1"><span>Hz</span></div></div><input id="pitch" aria-label="Pitch" type="range" min="0" max="1000" step="1"></div>
 <div class="row"><div class="heading"><label for="width">Bandwidth</label><div class="value"><input id="width-number" aria-label="Bandwidth in octaves" type="number" min="0" max="3" step="0.01"><span>oct</span></div></div><input id="width" aria-label="Bandwidth" type="range" min="0" max="3" step="0.01"><div class="choices" id="width-presets"><button data-width="0">Tone</button><button data-width="0.3333333333333333">⅓ oct</button><button data-width="0.75">¾ oct</button><button data-width="1">1 oct</button></div></div>
 <div class="row"><div class="heading"><label for="weight">Center weighting</label><div class="value"><input id="weight-number" aria-label="Center weighting percent" type="number" min="0" max="100" step="1"><span>%</span></div></div><input id="weight" type="range" min="0" max="100" step="1"></div>
 
 <div class="row"><div class="heading"><label for="texture">Noise randomness</label><div class="value"><input id="texture-number" aria-label="Noise randomness percent" type="number" min="0" max="100" step="1"><span>%</span></div></div><input id="texture" type="range" min="0" max="100" step="1"><div class="heading"><span class="value">Steady</span><span class="value">Stochastic</span></div></div>
-<figure><figcaption>Selected tone target · combined live spectrum (dB)</figcaption><canvas id="spectrum" role="img" aria-label="Stimulus spectrum"></canvas><div class="axis">Frequency (Hz)</div></figure>
+<figure><figcaption>Relative amplitude (dB)</figcaption><canvas id="spectrum" role="img" aria-label="Stimulus spectrum"></canvas><div class="axis">Frequency (Hz)</div></figure>
 <div class="row"><div class="heading"><label for="volume">Volume</label><div class="value"><input id="volume-number" aria-label="Volume percent" type="number" min="0" max="100" step="1"><span>%</span></div></div><input id="volume" type="range" min="0" max="100" step="1"></div>
 </section>
 <div class="transport"><button id="play" class="play" aria-pressed="false">Play</button></div><p id="error" role="alert" hidden></p>
 <p id="playback-status" class="value" role="status"></p>
 
-<details class="row"><summary>Configuration</summary><p class="hint">Exported parameters for every tone:</p><ul id="export-parameters"><li>Pitch (Hz)</li><li>Bandwidth (octaves)</li><li>Center weighting (%)</li><li>Noise randomness (%)</li><li>Volume (%)</li><li>Enabled / muted</li></ul><p class="hint">Includes all tones and the selected tone.</p><div class="choices"><button id="export-config">Export configuration</button><button id="import-config">Import configuration</button></div>
+<details class="row"><summary>Configuration</summary><ul id="export-parameters"><li>Pitch (Hz)</li><li>Bandwidth (octaves)</li><li>Center weighting (%)</li><li>Noise randomness (%)</li><li>Volume (%)</li><li>Enabled / muted</li></ul><div class="choices"><button id="export-config">Export configuration</button><button id="import-config">Import configuration</button></div>
 <input id="config-file" type="file" accept=".txt,.json,text/plain,application/json" hidden>
 <p id="config-status" class="value" role="status"></p></details>
 </main>
@@ -65,7 +65,7 @@ function parseConfiguration(text){
 }
 function renderTones(){
  const focused=document.activeElement?.id;
- $('tones').innerHTML=tones.map((tone,i)=>`<div class="tone-item"><button class="select-tone" id="select-tone-${i}" aria-pressed="${i===selected}">Tone ${i+1} · ${tone.pitch} Hz</button><label><input id="enable-tone-${i}" type="checkbox" ${tone.enabled?'checked':''} aria-label="Enable tone ${i+1}">On</label><button id="remove-tone-${i}" aria-label="Remove tone ${i+1}" ${tones.length===1?'disabled':''}>Remove</button></div>`).join('');
+ $('tones').innerHTML=tones.map((tone,i)=>`<div class="tone-item"><button class="select-tone" id="select-tone-${i}" aria-pressed="${i===selected}">Tone ${i+1} (${tone.pitch} Hz)</button><label><input id="enable-tone-${i}" type="checkbox" ${tone.enabled?'checked':''} aria-label="Enable tone ${i+1}">On</label><button id="remove-tone-${i}" aria-label="Remove tone ${i+1}" ${tones.length===1?'disabled':''}>Remove</button></div>`).join('');
  tones.forEach((tone,i)=>{
  $('select-tone-'+i).onclick=()=>{selected=i;state=tone;sync();save();};
  $('enable-tone-'+i).onchange=e=>{tone.enabled=e.target.checked;sync();save();updateAudio();};
@@ -73,7 +73,7 @@ function renderTones(){
  });
  if(focused?.match(/^(select|enable|remove)-tone-/))$(focused)?.focus();
  $('add-tone').disabled=tones.length>=32;
- $('selected-tone').textContent=`Tune tone ${selected+1}`;
+ $('selected-tone').textContent=`Tone ${selected+1}`;
 }
 $('add-tone').onclick=()=>{if(tones.length>=32)return;tones.push({...defaults,enabled:true});selected=tones.length-1;state=tones[selected];sync();save();updateAudio();};
 $('export-config').onclick=()=>{
@@ -87,7 +87,7 @@ $('config-file').onchange=async event=>{
  try{if(file.size>65536)throw new Error('Configuration file must be smaller than 64 KB.');
  const settings=parseConfiguration(await file.text());
  stop();tones=settings.tones;selected=settings.selected;state=tones[selected];sync();save();
- $('config-status').textContent='Configuration imported. Press Play to listen.';
+ $('config-status').textContent='Configuration imported.';
  }catch(error){$('config-status').textContent='Import failed: '+error.message;}
  finally{event.target.value='';}
 };
