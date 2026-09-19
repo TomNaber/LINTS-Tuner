@@ -8,9 +8,9 @@ A self-contained browser audio tuner with multiple simultaneous tones, each with
 
 Every adjustment is saved automatically in this browser's local storage. The next visit restores the last settings without starting playback. Existing Tinnitus Matcher settings on the same browser origin are migrated. Storage is specific to the browser and site; a local file and GitHub Pages do not share settings.
 
-Add tones with **Add tone**, enable or mute each with **On**, and select a tone to tune its controls. The spectrum shows the selected tone’s target and the combined live output. Up to 32 tones are supported. Enabled signals are averaged to keep adding tones from multiplying the output level.
+Add tones with **Add tone**, enable or mute each with **On**, and select a tone to tune its controls or edit its Name. The spectrum shows the selected tone’s target and the combined live output. Up to 32 tones are supported. Enabled signals are averaged to keep adding tones from multiplying the output level.
 
-The **Configuration** section lists the exported parameters. Use **Export configuration** to download `lints-tuner-configuration.txt`, a readable JSON text file with an app identifier, format version, all tones with their five controls and enabled state, and the selected tone. Version 2 exports support multiple tones; version 1 single-tone files still import. **Import configuration** validates all values before applying them, saves them, and stops playback so you can review the imported volume before pressing Play. Invalid files leave the current settings unchanged. Export remains available if browser storage is blocked.
+Use **Export configuration** to download `lints-tuner-configuration.txt`, a readable JSON text file with an app identifier, format version, all tones with their names, five controls and enabled state, and the selected tone. Version 2 exports support multiple tones; version 1 single-tone files still import. **Import configuration** validates all values before applying them, saves them, and stops playback so you can review the imported volume before pressing Play. Invalid files leave the current settings unchanged. Export remains available if browser storage is blocked.
 
 ## Background playback
 
