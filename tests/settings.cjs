@@ -32,13 +32,12 @@ function app(saved={},blocked=false){
  assert.equal(a.run('state.pitch'),8100);
  a.elements.get('select-tone-1').onclick();assert.equal(a.run('state.pitch'),2300);
  const multi=app(a.storage);assert.equal(multi.run('tones.length'),2);assert.equal(multi.run('state.volume'),11);assert.equal(multi.run('tones[0].enabled'),false);
- a.elements.get('tone-name').oninput({target:{value:'Left <high> & soft'}});
+ a.run("state.name='Left <high> & soft';sync();save()");
  assert.equal(a.elements.get('select-tone-1').textContent,'Left <high> & soft (2300 Hz)');
  assert.equal(app(a.storage).run('state.name'),'Left <high> & soft');
  const roundTrip=a.run('JSON.stringify(parseConfiguration(JSON.stringify(configuration())))');
  assert.equal(JSON.parse(roundTrip).tones[1].pitch,2300);
  assert.equal(JSON.parse(roundTrip).tones[1].name,'Left <high> & soft');
- a.elements.get('tone-name').oninput({target:{value:'   '}});assert.equal(a.run('state.name'),'Tone 2');
  const legacy={app:'LINTS Tuner',version:1,settings:old};
  assert.equal(a.run(`parseConfiguration(${JSON.stringify(JSON.stringify(legacy))}).tones[0].pitch`),6500);
  for(const patch of [{tones:[]},{tones:[{...old,enabled:true,name:42}]},{tones:[{...old,enabled:true,name:'x'.repeat(81)}]},{selected:5},{tones:[{...old,enabled:'yes'}]}]){

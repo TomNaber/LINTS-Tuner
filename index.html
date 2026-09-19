@@ -5,12 +5,12 @@
 <meta name="theme-color" content="#f7f8f6"><title>LINTS Tuner</title>
 <style>
 :root{color-scheme:light;font:16px system-ui,sans-serif;color:#202723;background:#f7f8f6;accent-color:#32634e}*{box-sizing:border-box}body{margin:0}main{max-width:660px;margin:60px auto;padding:0 24px 40px}h1{font-size:24px;letter-spacing:-.7px;font-weight:600;margin:0 0 28px}button{font:inherit;cursor:pointer}label,.label{display:block;font-size:14px;font-weight:500}.row{margin:26px 0}.heading{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}.value{display:flex;align-items:center;gap:8px;font-size:13px;color:#69736c}input[type=number]{font:inherit;font-size:15px;width:90px;padding:7px 8px;border:1px solid #d8ded9;border-radius:5px;background:#fff;color:#202723;text-align:right}input[type=range]{width:100%;margin:6px 0;cursor:pointer;min-height:24px}.choices{display:flex;gap:8px;flex-wrap:wrap}.choices button{border:1px solid #d8ded9;border-radius:5px;padding:8px 16px;background:transparent;font-size:14px}.choices button[aria-pressed=true]{background:#e4ede6;border-color:#557b64;color:#244f3c}figure{margin:30px 0 24px}canvas{display:block;width:100%;height:200px}figcaption{font-size:12px;color:#69736c;margin-bottom:8px}.axis{text-align:center;font-size:12px;color:#69736c}.transport{display:flex;gap:12px;margin-top:26px}.play{background:#2d5743;color:white;border:0;border-radius:6px;padding:13px 24px;width:100%;font-weight:500}.play[aria-pressed=true]{background:#424c46}button:focus-visible,input:focus-visible{outline:2px solid #32634e;outline-offset:4px}[hidden]{display:none!important}#error{color:#a33629;font-size:14px}@media(max-width:500px){main{margin-top:30px;padding:0 20px 28px}}
-.tone-item{display:flex;align-items:center;gap:10px;margin:8px 0}.tone-item .select-tone{flex:1;text-align:left}.tone-item button{border:1px solid #d8ded9;border-radius:5px;padding:9px 12px;background:white}.tone-item button[aria-pressed=true]{background:#e4ede6;border-color:#557b64}.tone-item label{display:flex;align-items:center;gap:5px}#tone-name{font:inherit;width:100%;padding:9px 12px;border:1px solid #d8ded9;border-radius:5px;background:white;color:inherit}.tone-item .select-tone{min-width:0;overflow-wrap:anywhere}</style>
+.tone-item{display:flex;align-items:center;gap:10px;margin:8px 0}.tone-item .select-tone{flex:1;text-align:left}.tone-item button{border:1px solid #d8ded9;border-radius:5px;padding:9px 12px;background:white}.tone-item button[aria-pressed=true]{background:#e4ede6;border-color:#557b64}.tone-item label{display:flex;align-items:center;gap:5px}.tone-item .select-tone{min-width:0;overflow-wrap:anywhere}</style>
 </head>
 <body><main>
 <h1>LINTS Tuner</h1>
 <section aria-label="Tones"><div class="heading"><div class="choices"><button id="add-tone">Add tone</button></div></div><div id="tones"></div></section>
-<section aria-label="Selected tone controls"><div class="row"><label for="tone-name" style="margin-bottom:12px">Name</label><input id="tone-name" type="text" maxlength="80" autocomplete="off"></div>
+<section aria-label="Selected tone controls">
 <div class="row"><div class="heading"><label for="pitch">Pitch</label><div class="value"><input id="pitch-number" aria-label="Pitch in Hz" type="number" min="100" max="16000" step="1"><span>Hz</span></div></div><input id="pitch" aria-label="Pitch" type="range" min="0" max="1000" step="1"></div>
 <div class="row"><div class="heading"><label for="width">Bandwidth</label><div class="value"><input id="width-number" aria-label="Bandwidth in octaves" type="number" min="0" max="3" step="0.01"><span>oct</span></div></div><input id="width" aria-label="Bandwidth" type="range" min="0" max="3" step="0.01"><div class="choices" id="width-presets"><button data-width="0">Tone</button><button data-width="0.3333333333333333">⅓ oct</button><button data-width="0.75">¾ oct</button><button data-width="1">1 oct</button></div></div>
 <div class="row"><div class="heading"><label for="weight">Center weighting</label><div class="value"><input id="weight-number" aria-label="Center weighting percent" type="number" min="0" max="100" step="1"><span>%</span></div></div><input id="weight" type="range" min="0" max="100" step="1"></div>
@@ -78,10 +78,7 @@ function renderTones(){
  });
  if(focused?.match(/^(select|enable|remove)-tone-/))$(focused)?.focus();
  $('add-tone').disabled=tones.length>=32;
- if(document.activeElement!==$('tone-name'))$('tone-name').value=toneName(state,selected);
 }
-$('tone-name').oninput=e=>{state.name=e.target.value.slice(0,80).trim()||`Tone ${selected+1}`;renderTones();save();};
-$('tone-name').onchange=()=>{$('tone-name').value=toneName(state,selected);};
 $('add-tone').onclick=()=>{if(tones.length>=32)return;tones.push({...defaults,enabled:true});selected=tones.length-1;state=tones[selected];sync();save();updateAudio();};
 $('export-config').onclick=()=>{
  const url=URL.createObjectURL(new Blob([JSON.stringify(configuration(),null,2)+'\n'],{type:'text/plain'}));
